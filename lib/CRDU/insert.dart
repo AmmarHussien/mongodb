@@ -12,21 +12,32 @@ class MongoDbInsert extends StatefulWidget {
 }
 
 class _MongoDbInsertState extends State<MongoDbInsert> {
-  var fNameController = new TextEditingController();
-  var lNameController = new TextEditingController();
-  var addressController = new TextEditingController();
+  var fNameController = TextEditingController();
+  var lNameController = TextEditingController();
+  var addressController = TextEditingController();
+
+  var _checkInsertUpdate = 'Insert';
 
   @override
   Widget build(BuildContext context) {
+    MongoDbModel data =
+        ModalRoute.of(context)!.settings.arguments as MongoDbModel;
+
+    if (data != null) {
+      fNameController.text = data.firstname;
+      lNameController.text = data.lastname;
+      addressController.text = data.address;
+      _checkInsertUpdate = 'Update';
+    }
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              const Text(
-                'insert Date',
-                style: TextStyle(
+              Text(
+                _checkInsertUpdate,
+                style: const TextStyle(
                   fontSize: 22,
                 ),
               ),
@@ -76,13 +87,18 @@ class _MongoDbInsertState extends State<MongoDbInsert> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      _insertData(
-                        fNameController.text,
-                        lNameController.text,
-                        addressController.text,
-                      );
+                      if (_checkInsertUpdate == 'Update') {
+                        _updateData(data.id, fNameController.text,
+                            lNameController.text, addressController.text);
+                      } else {
+                        _insertData(
+                          fNameController.text,
+                          lNameController.text,
+                          addressController.text,
+                        );
+                      }
                     },
-                    child: const Text('Insert Data'),
+                    child: Text(_checkInsertUpdate),
                   ),
                 ],
               )
@@ -91,6 +107,22 @@ class _MongoDbInsertState extends State<MongoDbInsert> {
         ),
       ),
     );
+  }
+
+  Future<void> _updateData(
+    var id,
+    String fName,
+    String lName,
+    String address,
+  ) async {
+    final updateData = MongoDbModel(
+      id: id,
+      firstname: fName,
+      lastname: lName,
+      address: address,
+    );
+    await MongoDatabase.update(updateData)
+        .whenComplete(() => Navigator.pop(context));
   }
 
   Future<void> _insertData(

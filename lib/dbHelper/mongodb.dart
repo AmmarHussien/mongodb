@@ -14,11 +14,6 @@ class MongoDatabase {
     userCollection = db.collection(USER_COLLECTION);
   }
 
-  static Future<List<Map<String,dynamic>>> getData() async {
-    final arrData = await userCollection.find().toList();
-    return arrData;
-  }
-
   static Future<String> insert(MongoDbModel dbModel) async {
     try {
       var result = await userCollection.insertOne(dbModel.toJson());
@@ -31,5 +26,23 @@ class MongoDatabase {
       print(e.toString());
       return e.toString();
     }
+  }
+
+  static Future<List<Map<String, dynamic>>> getData() async {
+    final arrData = await userCollection.find().toList();
+    return arrData;
+  }
+
+  static Future<void> update(MongoDbModel dbModel) async {
+    var result = await userCollection.findOne({'_id': dbModel.id});
+    result['firstName'] = dbModel.firstname;
+    result['lastname'] = dbModel.lastname;
+    result['address'] = dbModel.address;
+    var response = await userCollection.save(result);
+    inspect(response);
+  }
+
+  static delete(MongoDbModel user) async {
+    await userCollection.remove(where.id(user.id));
   }
 }

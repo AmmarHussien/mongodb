@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mongodb/CRDU/display.dart';
 import 'package:mongodb/dbHelper/mongodb.dart';
 
-import 'dbHelper/display.dart';
-import 'insert.dart';
+import 'CRDU/delete.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
